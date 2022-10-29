@@ -5,10 +5,10 @@
 #値設定
 
 
-#シミュレーションを繰り返す回数
+#シミュレーションを繰り返す回数
 times = 1
 
-#個体数と世代数
+#個体数と世代数
 size_pop = 50
 
 num_generations = 100
@@ -17,19 +17,17 @@ num_generations = 100
 period = 10
 
 #交叉と突然変異の起きる確率
-probab_clossing = 0
+probab_clossing = 0.7
 probab_mutating = 0.5
 
 #最良の個体の保存される確率
 best_surv= 1
 
-#最も混雑している車両の混雑軽減を優先する程度(0~1)
-max_specific_gravity = 0
 
 
 
 #一つの駅で乗ってくる客数を決定
-num_passengers = 100
+num_passengers = 30
 
 #電車の車両編成
 len_of_train = 6
@@ -46,7 +44,7 @@ give_passengers = False
 
 #乗客の行き先情報を与える場合のデータ
 #各駅で乗車する客の目的駅を指定
-#制作当時、各駅の乗客数を一定値にしていたため、終点に近い駅ほど降車客が多くなってしまっていた。
+#制作当時、各駅の乗客数を一定値にしていたため、終点に近い駅ほど降車客が多くなってしまっていた。
 all_passengers = [[4, 2, 7, 4, 6, 3, 6, 7, 1, 3, 2, 2, 4, 3, 1,
                    1, 7, 5, 7, 3, 2, 7, 4, 3, 3, 1, 1, 7, 2, 1],
                   [5, 6, 7, 7, 4, 6, 3, 5, 4, 2, 3, 5, 7, 2, 7,
@@ -81,7 +79,7 @@ from deap import base, creator, tools
 #関数の定義
 
 
-#客の行き先情報を格納するリストを生成
+#客の行き先情報を格納するリストを生成
 def package():
     li = [[],[0]*len_of_train]
     return(li)
@@ -146,29 +144,25 @@ def caluculate_average_two_square(indi):
     return(av_tw_sq)
 
 
-#個体の評価に使用
+#目的関数　個体の評価に使用
 def eval_func_one(individual):
     mean_square_sum = 0
-    max_vehicle_passengers = 0
     
     for i in individual:
         for k in i[1]:
             mean_square_sum += k**2
         ave = sum(i[1])/6
-        if ave == 0: ave = 1
-        max_vehicle_passengers += max(i[1])/ave
         
     mean_square_ave = mean_square_sum/(len_of_train*num_station)
-    max_weight = max_vehicle_passengers*max_specific_gravity
     distributed = mean_square_ave - average_two_square
     
-    #(全ての駅間での車両ごとの人数の分散,各駅間で最も人数が多かった車両の混雑軽減のための適応度)
-    return(distributed,max_weight)
+    #(全ての駅間での車両ごとの人数の分散,)
+    return(distributed,)
 
     
 
 
-#最良の値の発見に使用
+#最良の値の発見に使用
 def find_best_ind(p):
     best_ind = tools.selBest(p, 1)[0]
     if not bool(find_best):
@@ -182,7 +176,7 @@ def find_best_ind(p):
 
 
 #必要なクラスと関数を作成
-creator.create("FitnessMax",base.Fitness, weights =(-1.0,-1.0)) #適応値の定義
+creator.create("FitnessMax",base.Fitness, weights =(-1.0,)) #適応値の定義
 creator.create("Individual",list,fitness=creator.FitnessMax,)   #個体の定義
 
 toolbox = base.Toolbox()
