@@ -284,7 +284,7 @@ for _ in  range(times):
                 mutant[st][0][person]=x
                 
                 
-#適応度リセット
+         #適応度リセット
                 del mutant.fitness.values
                 
                 #乗り降りの再試行
